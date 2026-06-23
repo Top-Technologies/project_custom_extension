@@ -1,0 +1,20 @@
+{
+    "name": "Project Custom Extension",
+    "version": "19.0.1.0.0",
+    "summary": "Adds Business Sector to Projects and Daily Logs to Tasks",
+    "description": "This module extends the standard Odoo Project module to include a business sector field on projects and a daily log feature for tasks.",
+    "category": "Project",
+    "author": "TopTech",
+    "depends": ["project", "mail", "sale_timesheet"],
+    "data": [
+        "security/ir.model.access.csv",
+        "views/project_project_views.xml",
+        "views/project_task_views.xml",
+        "views/project_task_log_views.xml",
+        "views/project_task_report_views.xml",
+        "views/project_report_fix.xml",
+    ],
+    "installable": True,
+    "application": False,
+    "license": "LGPL-3",
+}

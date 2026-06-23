@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Fix missing js_class in project graph view -->
+    <record id="view_task_project_user_graph_fix" model="ir.ui.view">
+        <field name="name">report.project.task.user.graph.fix</field>
+        <field name="model">report.project.task.user</field>
+        <field name="inherit_id" ref="project.view_task_project_user_graph"/>
+        <field name="arch" type="xml">
+            <!-- Remove the custom js_class that's causing the error -->
+            <xpath expr="//graph[@js_class='project_task_analysis_graph']" position="attributes">
+                <attribute name="js_class"></attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_task_project_user_pivot_inherit_reporting" model="ir.ui.view">
+        <field name="name">report.project.task.user.pivot.inherit.reporting</field>
+        <field name="model">report.project.task.user</field>
+        <field name="inherit_id" ref="project.view_task_project_user_pivot"/>
+        <field name="arch" type="xml">
+            <xpath expr="//pivot" position="attributes">
+                <attribute name="disable_linking">0</attribute>
+            </xpath>
+            <xpath expr="//pivot" position="inside">
+                <field name="count_completed" type="measure"/>
+                <field name="count_in_progress" type="measure"/>
+                <field name="count_delayed" type="measure"/>
+                <field name="count_at_risk" type="measure"/>
+                <field name="count_cancelled" type="measure"/>
+                <field name="count_on_hold" type="measure"/>
+                <field name="is_subtask" type="measure"/>
+                <field name="planned_work" type="measure"/>
+                <field name="actual_worked" type="measure"/>
+                <field name="work_variation" type="measure"/>
+                <field name="achievement_rate" type="measure"/>
+                <field name="is_quantified" type="measure"/>
+                <field name="is_not_quantified" type="measure"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_task_project_user_graph_inherit_reporting" model="ir.ui.view">
+        <field name="name">report.project.task.user.graph.inherit.reporting</field>
+        <field name="model">report.project.task.user</field>
+        <field name="inherit_id" ref="project.view_task_project_user_graph"/>
+        <field name="arch" type="xml">
+            <xpath expr="//graph" position="inside">
+                <field name="count_completed" type="measure"/>
+                <field name="count_in_progress" type="measure"/>
+                <field name="count_delayed" type="measure"/>
+                <field name="count_at_risk" type="measure"/>
+                <field name="count_cancelled" type="measure"/>
+                <field name="count_on_hold" type="measure"/>
+                <field name="planned_work" type="measure"/>
+                <field name="actual_worked" type="measure"/>
+                <field name="achievement_rate" type="measure"/>
+                <field name="is_quantified" type="measure"/>
+                <field name="is_not_quantified" type="measure"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_task_project_user_search_inherit_reporting" model="ir.ui.view">
+        <field name="name">report.project.task.user.search.inherit.reporting</field>
+        <field name="model">report.project.task.user</field>
+        <field name="inherit_id" ref="project.view_task_project_user_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group" position="inside">
+                <filter string="Task" name="group_by_task" context="{'group_by': 'task_id'}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

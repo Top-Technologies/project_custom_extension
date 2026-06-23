@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_project_task_log_list_v2" model="ir.ui.view">
+        <field name="name">project.task.log.list.v2</field>
+        <field name="model">project.task.log</field>
+        <field name="arch" type="xml">
+            <list string="Daily Logs">
+                <field name="date"/>
+                <field name="user_id" string="Logged By"/>
+                <field name="project_id"/>
+                <field name="task_id"/>
+                <field name="description"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_project_task_log_search" model="ir.ui.view">
+        <field name="name">project.task.log.search</field>
+        <field name="model">project.task.log</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="user_id"/>
+                <field name="task_id"/>
+                <field name="description"/>
+                <separator/>
+                <filter string="My Logs" name="my_logs" domain="[('user_id', '=', uid)]"/>
+                <filter string="Today" name="today" domain="[('date', '=', context_today())]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_project_task_log_all_v2" model="ir.actions.act_window">
+        <field name="name">Daily Logs</field>
+        <field name="res_model">project.task.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_project_task_log_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No daily logs found.
+            </p>
+            <p>
+                Team members can log their daily work directly on their assigned tasks.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_project_task_log_reporting_v2"
+              name="Daily Logs"
+              parent="project.menu_project_report"
+              action="action_project_task_log_all_v2"
+              groups="project.group_project_user,project.group_project_manager"
+              sequence="5"/>
+</odoo>
