@@ -10,15 +10,15 @@
                 <field name="is_project_manager" invisible="1"/>
             </xpath>
             
+
+            
             <!-- Add start_date, end_date, and completed_date to main form -->
             <xpath expr="//div[@id='date_deadline_and_recurring_task']" position="after">
                 <field name="start_date"/>
                 <field name="end_date"/>
-                <field name="completed_date" 
-                       readonly="state != '1_done'" 
-                       required="state == '1_done'"
+                <field name="completed_date"
                        decoration-success="completed_date and state == '1_done'"
-                       placeholder="Fill when marking as done..."/>
+                       help="Auto-filled when the task is marked as Done, but can be manually edited"/>
             </xpath>
             
             <xpath expr="//notebook" position="inside">
@@ -35,7 +35,7 @@
             <xpath expr="//page[@name='sub_tasks_page']//field[@name='child_ids']//list//field[@name='name']" position="after">
                 <field name="start_date" optional="show"/>
                 <field name="end_date" optional="show"/>
-                <field name="completed_date" optional="show" required="state == '1_done'"/>
+                <field name="completed_date" optional="show"/>
                 <field name="quantification_type" widget="radio" options="{'horizontal': true}"/>
                 <field name="target_no" string="Planned" 
                        invisible="quantification_type != 'quantified'"/>

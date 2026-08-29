@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="business_sector_manufacturing" model="project.business.sector">
+            <field name="name">Manufacturing</field>
+        </record>
+        <record id="business_sector_textile" model="project.business.sector">
+            <field name="name">Textile</field>
+        </record>
+        <record id="business_sector_beverage" model="project.business.sector">
+            <field name="name">Beverage</field>
+        </record>
+        <record id="business_sector_construction" model="project.business.sector">
+            <field name="name">Construction</field>
+        </record>
+        <record id="business_sector_it" model="project.business.sector">
+            <field name="name">Information Technology</field>
+        </record>
+        <record id="business_sector_services" model="project.business.sector">
+            <field name="name">Services</field>
+        </record>
+        <record id="business_sector_retail" model="project.business.sector">
+            <field name="name">Retail</field>
+        </record>
+        <record id="business_sector_other" model="project.business.sector">
+            <field name="name">Other</field>
+        </record>
+    </data>
+</odoo>

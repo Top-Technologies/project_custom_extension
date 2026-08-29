@@ -1,2 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_project_task_log_user,project.task.log.user,model_project_task_log,base.group_user,1,1,1,1
+access_project_business_sector_user,project.business.sector.user,model_project_business_sector,base.group_user,1,1,1,1

@@ -169,3 +169,56 @@ class TestProjectTaskQuantification(TransactionCase):
         subtask1.actual_no = 40.0
         parent_task._compute_quantification_totals()
         self.assertEqual(parent_task.actual_no, 70.0, "Parent actual should be 70 (40 + 30)")
+
+    def test_locked_fields(self):
+        """ Test that start_date, end_date, and date_deadline cannot be changed by normal users once set. """
+        # Create a regular user
+        group_user = self.env.ref('base.group_user')
+        regular_user = self.env['res.users'].create({
+            'name': 'Regular Employee',
+            'login': 'reg_emp',
+            'email': 'reg_emp@test.com',
+            'groups_id': [(6, 0, [group_user.id])],
+        })
+
+        # Create task without dates (as admin)
+        task = self.env['project.task'].create({
+            'name': 'Test Locked Fields Task',
+            'project_id': self.project.id,
+        })
+
+        # As regular user, we should be able to set the dates initially
+        task_as_user = task.with_user(regular_user)
+        task_as_user.write({
+            'start_date': '2026-07-01',
+            'end_date': '2026-07-10',
+            'date_deadline': '2026-07-15',
+        })
+        self.assertEqual(task.start_date, fields.Date.to_date('2026-07-01'))
+        self.assertEqual(task.end_date, fields.Date.to_date('2026-07-10'))
+        self.assertEqual(task.date_deadline, fields.Date.to_date('2026-07-15'))
+
+        # As regular user, trying to modify any of these fields should raise ValidationError
+        from odoo.exceptions import ValidationError
+        with self.assertRaises(ValidationError):
+            task_as_user.write({'start_date': '2026-07-02'})
+
+        with self.assertRaises(ValidationError):
+            task_as_user.write({'end_date': '2026-07-11'})
+
+        with self.assertRaises(ValidationError):
+            task_as_user.write({'date_deadline': '2026-07-16'})
+
+        with self.assertRaises(ValidationError):
+            task_as_user.write({'start_date': False})
+
+        # As admin, modifying these fields should work fine
+        task.write({
+            'start_date': '2026-07-05',
+            'end_date': '2026-07-12',
+            'date_deadline': '2026-07-20',
+        })
+        self.assertEqual(task.start_date, fields.Date.to_date('2026-07-05'))
+        self.assertEqual(task.end_date, fields.Date.to_date('2026-07-12'))
+        self.assertEqual(task.date_deadline, fields.Date.to_date('2026-07-20'))
+

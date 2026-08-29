@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="project.edit_project"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="business_sector"/>
+                <field name="business_sector_ids" widget="many2many_tags"/>
             </xpath>
         </field>
     </record>
@@ -17,7 +17,7 @@
         <field name="inherit_id" ref="project.project_project_view_form_simplified"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='name']" position="after">
-                <field name="business_sector"/>
+                <field name="business_sector_ids" widget="many2many_tags"/>
             </xpath>
         </field>
     </record>
@@ -28,7 +28,7 @@
         <field name="inherit_id" ref="project.view_project"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="business_sector" optional="show"/>
+                <field name="business_sector_ids" widget="many2many_tags" optional="show"/>
             </xpath>
         </field>
     </record>

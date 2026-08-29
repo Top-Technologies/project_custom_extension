@@ -8,6 +8,7 @@
     "depends": ["project", "mail", "sale_timesheet"],
     "data": [
         "security/ir.model.access.csv",
+        "data/business_sector_data.xml",
         "views/project_project_views.xml",
         "views/project_task_views.xml",
         "views/project_task_log_views.xml",
