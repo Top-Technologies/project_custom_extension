@@ -21,14 +21,52 @@ class Task(models.Model):
     is_at_risk = fields.Boolean(string='Is At Risk', compute='_compute_is_at_risk', search='_search_is_at_risk')
     has_quantified_subtasks = fields.Boolean(compute='_compute_has_quantified_subtasks', store=True)
     is_project_manager = fields.Boolean(compute='_compute_is_project_manager')
+    is_admin_user = fields.Boolean(compute='_compute_is_admin_user')
+    is_client_project = fields.Boolean(compute='_compute_is_client_project')
+    is_start_date_readonly = fields.Boolean(compute='_compute_date_readonly_flags')
+    is_end_date_readonly = fields.Boolean(compute='_compute_date_readonly_flags')
+    is_deadline_readonly = fields.Boolean(compute='_compute_date_readonly_flags')
+    is_top_status_readonly = fields.Boolean(compute='_compute_date_readonly_flags')
 
+    @api.depends_context('uid')
+    def _compute_is_admin_user(self):
+        is_admin = self.env.user.has_group('base.group_system') or self.env.is_admin()
+        for task in self:
+            task.is_admin_user = is_admin
 
+    @api.depends('project_id', 'project_id.x_project_type')
+    def _compute_is_client_project(self):
+        for task in self:
+            task.is_client_project = task.project_id and getattr(task.project_id, 'x_project_type', False) == 'client'
+
+    @api.depends_context('uid')
+    @api.depends('start_date', 'end_date', 'date_deadline', 'parent_id', 'project_id', 'project_id.x_project_type')
+    def _compute_date_readonly_flags(self):
+        is_admin = self.env.user.has_group('base.group_system') or self.env.is_admin()
+        for task in self:
+            is_client = task.project_id and getattr(task.project_id, 'x_project_type', False) == 'client'
+            if is_client and not is_admin:
+                origin = task._origin
+                task.is_start_date_readonly = bool(origin.start_date)
+                task.is_end_date_readonly = bool(origin.end_date)
+                task.is_deadline_readonly = bool(origin.date_deadline)
+                task.is_top_status_readonly = not task.parent_id
+            else:
+                task.is_start_date_readonly = False
+                task.is_end_date_readonly = False
+                task.is_deadline_readonly = False
+                task.is_top_status_readonly = False
 
     @api.depends_context('uid')
     def _compute_is_project_manager(self):
         is_manager = self.env.user.has_group('project.group_project_manager') or self.env.is_admin()
         for task in self:
             task.is_project_manager = is_manager
+
+    @api.onchange('state')
+    def _onchange_state_auto_completed_date(self):
+        if self.state == '1_done' and not self.completed_date:
+            self.completed_date = fields.Date.context_today(self)
 
     @api.depends('child_ids.quantification_type')
     def _compute_has_quantified_subtasks(self):
@@ -43,9 +81,6 @@ class Task(models.Model):
                 if quantified_children:
                     task.target_no = sum((c.target_no or 0.0) for c in quantified_children)
                     task.actual_no = sum((c.actual_no or 0.0) for c in quantified_children)
-                # If there are children but none are quantified, we don't automatically reset 
-                # because they might have been set manually before quantification was added to children.
-            # Else (no children), values remain manual.
 
     @api.depends('date_deadline', 'state')
     def _compute_is_delayed(self):
@@ -75,12 +110,41 @@ class Task(models.Model):
         for task in self:
             task.variation_no = (task.target_no or 0.0) - (task.actual_no or 0.0)
 
-
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('state') == '1_done' and 'completed_date' not in vals:
+                vals['completed_date'] = fields.Date.context_today(self)
+        return super().create(vals_list)
 
     def write(self, vals):
+        is_admin = self.env.user.has_group('base.group_system') or self.env.is_admin()
 
+        # Check date locking & top status restrictions for non-admin users on Client Projects
+        for task in self:
+            is_client = task.project_id and getattr(task.project_id, 'x_project_type', False) == 'client'
+            if is_client and not is_admin:
+                origin = task._origin
+                # 1. Date Field Locking
+                if 'start_date' in vals and origin.start_date:
+                    raise ValidationError("Start Date is locked and can only be modified by an Administrator for Client projects.")
+                if 'end_date' in vals and origin.end_date:
+                    raise ValidationError("End Date is locked and can only be modified by an Administrator for Client projects.")
+                if 'date_deadline' in vals and origin.date_deadline:
+                    raise ValidationError("Deadline is locked and can only be modified by an Administrator for Client projects.")
 
+                # 2. Top Status Restriction
+                if not task.parent_id and ('state' in vals or 'stage_id' in vals):
+                    raise ValidationError("The status of top-level tasks on Client projects can only be modified by an Administrator.")
 
+        # 3. Auto-fill completion date when state changes to done
+        if vals.get('state') == '1_done' and 'completed_date' not in vals:
+            vals['completed_date'] = fields.Date.context_today(self)
+        elif 'stage_id' in vals and 'completed_date' not in vals:
+            stage = self.env['project.task.type'].browse(vals['stage_id'])
+            if stage.name == 'Done' or stage.fold:
+                vals['completed_date'] = fields.Date.context_today(self)
 
         return super(Task, self).write(vals)
+
 
