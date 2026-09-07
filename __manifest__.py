@@ -5,7 +5,7 @@
     "description": "This module extends the standard Odoo Project module to include a business sector field on projects and a daily log feature for tasks.",
     "category": "Project",
     "author": "TopTech",
-    "depends": ["project", "mail", "sale_timesheet"],
+    "depends": ["project", "mail", "sale_timesheet", "project_dashboard_v19c"],
     "data": [
         "security/ir.model.access.csv",
         "data/business_sector_data.xml",
