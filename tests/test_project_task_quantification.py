@@ -9,6 +9,7 @@ class TestProjectTaskQuantification(TransactionCase):
         super(TestProjectTaskQuantification, cls).setUpClass()
         cls.project = cls.env['project.project'].create({
             'name': 'Test Project',
+            'x_project_type': 'client',
             'billing_type': 'not_billable',
         })
 
@@ -173,13 +174,10 @@ class TestProjectTaskQuantification(TransactionCase):
     def test_locked_fields(self):
         """ Test that start_date, end_date, and date_deadline cannot be changed by normal users once set. """
         # Create a regular user
-        group_user = self.env.ref('base.group_user')
-        regular_user = self.env['res.users'].create({
-            'name': 'Regular Employee',
-            'login': 'reg_emp',
-            'email': 'reg_emp@test.com',
-            'groups_id': [(6, 0, [group_user.id])],
-        })
+        from odoo.addons.mail.tests.common import mail_new_test_user
+        regular_user = mail_new_test_user(
+            self.env, name='Regular Employee', login='reg_emp_quant', email='reg_emp_quant@test.com', groups='base.group_user,project.group_project_user'
+        )
 
         # Create task without dates (as admin)
         task = self.env['project.task'].create({
@@ -196,7 +194,7 @@ class TestProjectTaskQuantification(TransactionCase):
         })
         self.assertEqual(task.start_date, fields.Date.to_date('2026-07-01'))
         self.assertEqual(task.end_date, fields.Date.to_date('2026-07-10'))
-        self.assertEqual(task.date_deadline, fields.Date.to_date('2026-07-15'))
+        self.assertEqual(fields.Date.to_date(task.date_deadline), fields.Date.to_date('2026-07-15'))
 
         # As regular user, trying to modify any of these fields should raise ValidationError
         from odoo.exceptions import ValidationError
@@ -220,5 +218,5 @@ class TestProjectTaskQuantification(TransactionCase):
         })
         self.assertEqual(task.start_date, fields.Date.to_date('2026-07-05'))
         self.assertEqual(task.end_date, fields.Date.to_date('2026-07-12'))
-        self.assertEqual(task.date_deadline, fields.Date.to_date('2026-07-20'))
+        self.assertEqual(fields.Date.to_date(task.date_deadline), fields.Date.to_date('2026-07-20'))
 
