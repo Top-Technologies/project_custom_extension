@@ -8,14 +8,22 @@
             <xpath expr="//notebook" position="before">
                 <field name="has_quantified_subtasks" invisible="1"/>
                 <field name="is_project_manager" invisible="1"/>
+                <field name="is_admin_user" invisible="1"/>
+                <field name="is_client_project" invisible="1"/>
+                <field name="is_start_date_readonly" invisible="1"/>
+                <field name="is_end_date_readonly" invisible="1"/>
+                <field name="is_deadline_readonly" invisible="1"/>
+                <field name="is_top_status_readonly" invisible="1"/>
             </xpath>
             
-
+            <xpath expr="//field[@name='date_deadline']" position="attributes">
+                <attribute name="readonly">is_deadline_readonly</attribute>
+            </xpath>
             
             <!-- Add start_date, end_date, and completed_date to main form -->
             <xpath expr="//div[@id='date_deadline_and_recurring_task']" position="after">
-                <field name="start_date"/>
-                <field name="end_date"/>
+                <field name="start_date" readonly="is_start_date_readonly"/>
+                <field name="end_date" readonly="is_end_date_readonly"/>
                 <field name="completed_date"
                        decoration-success="completed_date and state == '1_done'"
                        help="Auto-filled when the task is marked as Done, but can be manually edited"/>
